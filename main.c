@@ -163,13 +163,6 @@ int main(int argc, char *argv[]){
                displayWeatherToday(weatherList, hourly);
                cJSON_Delete(weatherList);
         }
-        /*
-        time_t currentTimestamp;
-        struct tm *timeThis;
-        time(&currentTimestamp);
-        timeThis= gmtime(&currentTimestamp);
-        printf("%d\n",timeThis->tm_year+1900); 
-        */
         free(kordinate);
         free(latStr);
         free(lonStr);
