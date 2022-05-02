@@ -120,6 +120,7 @@ cJSON *get48Hours(const char *lat, const char *lon){
         strcat(header, "\n");
         strcat(header, "Accept: */*\n");
         strcat(header,"\n");
+        //printf("%s\n", header);
         writen(sock,header, strlen(header));
         char response[20000];
         readHttpResponse(sock, response);
@@ -135,7 +136,10 @@ int main(int argc, char *argv[]){
         int ch;
         int hourly = 0, now = 1;
         char cityName[100];
-        while ((ch = getopt(argc,argv,"h:n")) != -1){
+        if (argc > 4 || argc < 1)
+                return 1;
+        strcpy(cityName, argv[1]);
+        while ((ch = getopt(argc,argv,"c:h:n")) != -1){
                 switch (ch){
                         case 'h':
                                 hourly = atoi(optarg);
@@ -149,7 +153,6 @@ int main(int argc, char *argv[]){
                                 break; 
                 }
         }
-        strcpy(cityName, argv[1]);
         struct coords *kordinate;
         kordinate = getCountryCoords(cityName);
         char *latStr, *lonStr;
