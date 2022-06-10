@@ -17,12 +17,11 @@
 
 const char *latMy= "45.819601167969466";
 const char *lonMy=  "15.884336035489284";
-const char *apiKey = ""; //Put your apikey from openweathermap.org here
+const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
 
-//I am sending my exact coordinates via unecrypted into the wire
-//might not smart to glow in the dark.
+//get the most basic weather stats, temp, clouds, raing, wind speed
 int getBasic(const char *lat,const char *lon){
         const char *resource = "/data/2.5/weather";
         int sock;
@@ -65,6 +64,7 @@ int getBasic(const char *lat,const char *lon){
         return 0; 
 }
 
+// returns city coords
 struct coords* 
 getCountryCoords(const char *cityName){
         const char *resource = "/geo/1.0/direct";
@@ -89,9 +89,11 @@ getCountryCoords(const char *cityName){
         writen(sock, header, strlen(header)); 
         char response[4056];
         readHttpResponse(sock, response);
-        //printf("%s\n",response);
-        cJSON *json = cJSON_DetachItemFromArray(cJSON_Parse(response), 0);
         close(sock);
+        //weird
+        if (!strncmp(response, "\n[]", 3))
+                return NULL;
+        cJSON *json = cJSON_DetachItemFromArray(cJSON_Parse(response), 0);
         struct coords *kordinate = (struct coords*) malloc(sizeof(struct coords));
         kordinate->lat= cJSON_GetObjectItem(json, "lat")->valuedouble;
         kordinate->lon= cJSON_GetObjectItem(json,"lon")->valuedouble;
@@ -132,12 +134,14 @@ cJSON *get48Hours(const char *lat, const char *lon){
         return hourlyWeatherList;
 }
 
+const static char* helpStr = "weatherChecker place [-h numberOfHours]";
+
 int main(int argc, char *argv[]){
         int ch;
         int hourly = 0, now = 1;
         char cityName[100];
-        if (argc > 4 || argc < 1)
-                return 1;
+        if (argc > 4 || argc < 2)
+                errx(1, "%s", helpStr);
         strcpy(cityName, argv[1]);
         while ((ch = getopt(argc,argv,"c:h:n")) != -1){
                 switch (ch){
@@ -155,6 +159,8 @@ int main(int argc, char *argv[]){
         }
         struct coords *kordinate;
         kordinate = getCountryCoords(cityName);
+        if (kordinate == NULL)
+                errx(1, "Place does not exist\n");
         char *latStr, *lonStr;
         latStr = ftoa(kordinate->lat);
         lonStr = ftoa(kordinate->lon);

@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "libs/cJSON/cJSON.h"
 
-const char *sunny = "                \\       /\n"
+const char *sunny = "          \\       /\n"
 "      |    \\_____/\n"
 "      | ---/      \\ ---\n"
 "      |    |       |\n"
