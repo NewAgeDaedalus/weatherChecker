@@ -18,8 +18,10 @@
 const char *latMy= "45.819601167969466";
 const char *lonMy=  "15.884336035489284";
 const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
+const char *visCrossKey = "DTZ8UDUNMEEPYVN4R4YVNXMGE";
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
+const char *viscrossAPIhostname = "weather.visualcrossing.com";
 
 //get the most basic weather stats, temp, clouds, raing, wind speed
 int getBasic(const char *lat,const char *lon){
@@ -45,6 +47,7 @@ int getBasic(const char *lat,const char *lon){
         strcat(httpRequest,"\n");
         //send http request
         //printf("%s\n", httpRequest);
+        printf("%s\n", httpRequest);
         writen(sock, httpRequest, strlen(httpRequest)); 
         //wait for resonse
         char response[4096] = "";
@@ -136,25 +139,61 @@ cJSON *get48Hours(const char *lat, const char *lon){
 
 const static char* helpStr = "weatherChecker place [-h numberOfHours]";
 
+cJSON *getHourly(struct coords location, int hours){
+        int sock = tcpConnect(viscrossAPIhostname);
+        const char *resource = "/VisualCrossingWebServices/rest/services/weatherdata/forecast?";
+        char url[1024] = "";
+        strcpy(url, resource);
+        strcat(url,"location=");
+        char lon[10], lat[10];
+        sprintf(lon, "%lf", location.lon);
+        sprintf(lat, "%lf", location.lat);
+        strcat(url, lat);
+        strcat(url, ",");
+        strcat(url, lon);
+        strcat(url, "&aggregateHours=");
+        char housrStr[5];
+        sprintf(url, "%d", hours);
+        strcat(url, housrStr); 
+        strcat(url, "&unitGroup=metric&"); 
+        strcat(url, "shortColumnNames=false&contentType=json");
+        strcat(url, "$key=");
+        strcat(url, visCrossKey);
+        printf("%s\n", url);
+        close(sock);
+        exit(0);
+        cJSON  *json;
+        return json;
+}
+
 int main(int argc, char *argv[]){
+        printf("Hey");
         int ch;
-        int hourly = 0, now = 1;
+        int hourly = 0, now = 1, week= 0;
         char cityName[100];
         if (argc > 4 || argc < 2)
                 errx(1, "%s", helpStr);
         strcpy(cityName, argv[1]);
-        while ((ch = getopt(argc,argv,"c:h:n")) != -1){
+        while ((ch = getopt(argc,argv,"c:h:wn")) != -1){
                 switch (ch){
                         case 'h':
                                 hourly = atoi(optarg);
                                 if (hourly > 24)
                                         hourly = 24;
                                 now = 0;
+                                week = 0;
                                 break;
                         case 'n':
                                 now = 1;
                                 hourly = 0;
+                                week = 0;
                                 break; 
+                        case 'w':
+                                printf("here");
+                                week = 1;
+                                now = 0;
+                                hourly = 0;
+                                break;
                 }
         }
         struct coords *kordinate;
@@ -171,6 +210,9 @@ int main(int argc, char *argv[]){
                weatherList = get48Hours(latStr, lonStr);
                displayWeatherToday(weatherList, hourly);
                cJSON_Delete(weatherList);
+        }else if (week){
+                cJSON *weatherList;
+                weatherList = getHourly(*kordinate, 12);
         }
         free(kordinate);
         free(latStr);
