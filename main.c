@@ -17,12 +17,7 @@
 
 const char *latMy= "45.819601167969466";
 const char *lonMy=  "15.884336035489284";
-<<<<<<< HEAD
 const char *apiKey = ""; //Put your apikey from openweathermap.org here
-=======
-const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
-const char *accuWeatherkey = "AVFCJ5Hsv4r4prCiAjo1c12ughGYnTrY";
->>>>>>> develop
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
 const char *accuWeatherhostname = "dataservice.accuweather.com";
