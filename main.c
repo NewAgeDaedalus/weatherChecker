@@ -18,17 +18,17 @@
 const char *latMy= "45.819601167969466";
 const char *lonMy=  "15.884336035489284";
 const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
-const char *visCrossKey = "DTZ8UDUNMEEPYVN4R4YVNXMGE";
+const char *accuWeatherkey = "AVFCJ5Hsv4r4prCiAjo1c12ughGYnTrY";
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
-const char *viscrossAPIhostname = "weather.visualcrossing.com";
+const char *accuWeatherhostname = "dataservice.accuweather.com";
 
 //get the most basic weather stats, temp, clouds, raing, wind speed
 int getBasic(const char *lat,const char *lon){
         const char *resource = "/data/2.5/weather";
         int sock;
         //create a tcp connection
-        sock = tcpConnect(weatherAPIhostname);
+        tcpConnect(weatherAPIhostname);
         //construct url
         char url[200], httpRequest[1024];
         strcpy(url, resource);
@@ -137,37 +137,76 @@ cJSON *get48Hours(const char *lat, const char *lon){
         return hourlyWeatherList;
 }
 
-const static char* helpStr = "weatherChecker place [-h numberOfHours]";
-
-cJSON *getHourly(struct coords location, int hours){
-        int sock = tcpConnect(viscrossAPIhostname);
-        const char *resource = "/VisualCrossingWebServices/rest/services/weatherdata/forecast?";
+char *getLocKey(int sock, struct coords *loc){
+        const char *res = "/locations/v1/cities/geoposition/search?";
         char url[1024] = "";
-        strcpy(url, resource);
-        strcat(url,"location=");
+        strcpy(url, res);
+        strcat(url, "apikey=");
+        strcat(url, accuWeatherkey);
+        strcat(url, "&");
+        strcat(url,"q=");
         char lon[10], lat[10];
-        sprintf(lon, "%lf", location.lon);
-        sprintf(lat, "%lf", location.lat);
+        sprintf(lon, "%lf", loc->lon);
+        sprintf(lat, "%lf", loc->lat);
         strcat(url, lat);
         strcat(url, ",");
         strcat(url, lon);
-        strcat(url, "&aggregateHours=");
-        char housrStr[5];
-        sprintf(url, "%d", hours);
-        strcat(url, housrStr); 
-        strcat(url, "&unitGroup=metric&"); 
-        strcat(url, "shortColumnNames=false&contentType=json");
-        strcat(url, "$key=");
-        strcat(url, visCrossKey);
-        printf("%s\n", url);
-        close(sock);
-        exit(0);
-        cJSON  *json;
+        char header[4096];
+        strcpy(header,"GET ");
+        strcat(header, url);
+        strcat(header, " HTTP/1.1\n");
+        strcat(header, "Host: ");
+        strcat(header, accuWeatherhostname);
+        strcat(header, "\n");
+        strcat(header, "Accept: */*\n");
+        strcat(header, "Accept-Encoding: Identity\n");
+        strcat(header,"\n");
+        printf("%s\n", header);
+        writen(sock,header, strlen(header));
+        char response[2000];
+        readHttpResponse(sock, response);
+        printf("%s\n", response);
+        cJSON *json = cJSON_Parse(response);
+        char *key= (char*) malloc(100);
+        strcpy(key, cJSON_GetObjectItem(json, "Key")->valuestring);
+        cJSON_Delete(json);
+        return key;
+}
+
+cJSON *getNext5Days( char *locKey){
+        int sock = tcpConnect(accuWeatherhostname);
+        const char *resource = "/forecasts/v1/daily/5day/";
+        char url[1024] = "";
+        strcpy(url, resource);
+        strcat(url,locKey);
+        strcat(url, "?");
+        strcat(url, "apikey=");
+        strcat(url, accuWeatherkey);
+        strcat(url, "&");
+        strcat(url, "language=en-us&");
+        strcat(url, "details=true&");
+        strcat(url, "metric=true");
+        char header[5000] = "";
+        strcpy(header,"GET ");
+        strcat(header, url);
+        strcat(header, " HTTP/1.1\n");
+        strcat(header, "Host: ");
+        strcat(header, accuWeatherhostname);
+        strcat(header, "\n");
+        strcat(header, "Accept: */*\n");
+        strcat(header, "Accept-Encoding: Identity\n\n");
+        printf("%s\n", header);
+        writen(sock,header, strlen(header));
+        char response[8192];
+        readHttpResponse(sock, response);
+        printf("%s\n", response);
+        cJSON *json = cJSON_Parse(response);
         return json;
 }
 
+const static char* helpStr = "weatherChecker place [-h numberOfHours]";
+
 int main(int argc, char *argv[]){
-        printf("Hey");
         int ch;
         int hourly = 0, now = 1, week= 0;
         char cityName[100];
@@ -212,7 +251,12 @@ int main(int argc, char *argv[]){
                cJSON_Delete(weatherList);
         }else if (week){
                 cJSON *weatherList;
-                weatherList = getHourly(*kordinate, 12);
+                int sock = tcpConnect(accuWeatherhostname);
+                char *locKey = getLocKey(sock, kordinate);
+                weatherList = getNext5Days(locKey);
+                printf("Here");
+                display5Days(weatherList);
+                free(locKey);
         }
         free(kordinate);
         free(latStr);
