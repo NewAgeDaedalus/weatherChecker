@@ -141,7 +141,7 @@ char *getLocKey(int sock, struct coords *loc){
         char url[1024] = "";
         strcpy(url, res);
         strcat(url, "apikey=");
-        strcat(url, accuWeatherkey);
+        strcat(url, apiKey);
         strcat(url, "&");
         strcat(url,"q=");
         char lon[10], lat[10];
@@ -180,7 +180,7 @@ cJSON *getNext5Days( char *locKey){
         strcat(url,locKey);
         strcat(url, "?");
         strcat(url, "apikey=");
-        strcat(url, accuWeatherkey);
+        strcat(url, apiKey);
         strcat(url, "&");
         strcat(url, "language=en-us&");
         strcat(url, "details=true&");
@@ -227,7 +227,6 @@ int main(int argc, char *argv[]){
                                 week = 0;
                                 break; 
                         case 'w':
-                                printf("here");
                                 week = 1;
                                 now = 0;
                                 hourly = 0;
@@ -253,7 +252,6 @@ int main(int argc, char *argv[]){
                 int sock = tcpConnect(accuWeatherhostname);
                 char *locKey = getLocKey(sock, kordinate);
                 weatherList = getNext5Days(locKey);
-                printf("Here");
                 display5Days(weatherList);
                 free(locKey);
         }
