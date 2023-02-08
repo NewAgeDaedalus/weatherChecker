@@ -51,11 +51,15 @@ ssize_t writen(int sock, void *ptr, size_t n){
 
 int readHttpResponse(int sock, char *response){
         //read the header
-        int numberOfNewLines = 0;
+        int numberOfNewLines = 0, err;
         char header[1024]="";
         //Weird shit going on. It would be more logical if it were <2, but it doesn't work.
-        while (numberOfNewLines < 3){
+        //int nLen = readn(sock, header, 150);
+        //header[nLen] = '\0';
+        //printf("%s\n", header);
+        while (numberOfNewLines < 3 ){
                 char buff[2] = "";
+                //printf("%d\n", err);
                 readn(sock, buff, 1);
                 if (buff[0] == '\n' || buff[0] == '\r'){
                         numberOfNewLines++;
@@ -108,7 +112,7 @@ int readHttpResponse(int sock, char *response){
 //Makes a tcp conneection given a hostname
 //returns socket number.
 int tcpConnect( const char *hostname){
-        const char *resource = "/data/2.5/weather";
+        printf("Connecting to %s\n", hostname);
         int sock, error;
         sock = socket(PF_INET, SOCK_STREAM, 0);
         if (sock < 0)
@@ -119,19 +123,17 @@ int tcpConnect( const char *hostname){
         hints.ai_socktype = SOCK_STREAM;
         hints.ai_flags = AI_PASSIVE;
         error = getaddrinfo(hostname,"http", &hints, &res);
-        
         if (error){
                 if (error == EAI_SYSTEM)
-                        printf( "looking up www.example.com: %s\n", strerror(errno));
+                        printf( "looking up %s: %s\n",hostname, strerror(errno));
                 else
-                        printf( "looking up www.example.com: %s\n", gai_strerror(error));
+                        printf( "looking up %s: %s\n",hostname, gai_strerror(error));
                 return -1;
         }
         struct addrinfo *cur = res;
         while(cur != NULL){
                 char addres[100];
                 inet_ntop(AF_INET,&((struct sockaddr_in*)cur->ai_addr)->sin_addr,addres,100);
-        
                 struct sockaddr_in myAddr;
                 memset(&myAddr, 0, sizeof(myAddr));
                 myAddr.sin_family = AF_INET;
