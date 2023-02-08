@@ -25,7 +25,7 @@ int getBasic(const char *lat,const char *lon){
         const char *resource = "/data/2.5/weather";
         int sock;
         //create a tcp connection
-        tcpConnect(weatherAPIhostname);
+        sock = tcpConnect(weatherAPIhostname);
         //construct url
         char url[200], httpRequest[1024];
         strcpy(url, resource);
@@ -44,7 +44,6 @@ int getBasic(const char *lat,const char *lon){
         strcat(httpRequest,"\n");
         //send http request
         //printf("%s\n", httpRequest);
-        printf("%s\n", httpRequest);
         writen(sock, httpRequest, strlen(httpRequest)); 
         //wait for resonse
         char response[4096] = "";
@@ -139,7 +138,7 @@ char *getLocKey(int sock, struct coords *loc){
         char url[1024] = "";
         strcpy(url, res);
         strcat(url, "apikey=");
-        strcat(url, accuWeatherkey);
+        strcat(url, apiKey);
         strcat(url, "&");
         strcat(url,"q=");
         char lon[10], lat[10];
@@ -159,6 +158,7 @@ char *getLocKey(int sock, struct coords *loc){
         strcat(header, "Accept-Encoding: Identity\n");
         strcat(header,"\n");
         printf("%s\n", header);
+	printf("\n?\n");
         writen(sock,header, strlen(header));
         char response[2000];
         readHttpResponse(sock, response);
@@ -178,7 +178,7 @@ cJSON *getNext5Days( char *locKey){
         strcat(url,locKey);
         strcat(url, "?");
         strcat(url, "apikey=");
-        strcat(url, accuWeatherkey);
+        strcat(url, apiKey);
         strcat(url, "&");
         strcat(url, "language=en-us&");
         strcat(url, "details=true&");
@@ -225,7 +225,6 @@ int main(int argc, char *argv[]){
                                 week = 0;
                                 break; 
                         case 'w':
-                                printf("here");
                                 week = 1;
                                 now = 0;
                                 hourly = 0;
@@ -251,7 +250,6 @@ int main(int argc, char *argv[]){
                 int sock = tcpConnect(accuWeatherhostname);
                 char *locKey = getLocKey(sock, kordinate);
                 weatherList = getNext5Days(locKey);
-                printf("Here");
                 display5Days(weatherList);
                 free(locKey);
         }
