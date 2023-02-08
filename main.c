@@ -15,7 +15,7 @@
 #include "display.h"
 #include "libs/cJSON/cJSON.h" 
 
-const char *apiKey = ""; //Put your apikey from openweathermap.org here
+const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
 const char *accuWeatherhostname = "dataservice.accuweather.com";

@@ -112,7 +112,7 @@ int readHttpResponse(int sock, char *response){
 //Makes a tcp conneection given a hostname
 //returns socket number.
 int tcpConnect( const char *hostname){
-        printf("Connecting to %s\n", hostname);
+//         printf("Connecting to %s\n", hostname);
         int sock, error;
         sock = socket(PF_INET, SOCK_STREAM, 0);
         if (sock < 0)
