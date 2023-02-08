@@ -207,6 +207,8 @@ int main(int argc, char *argv[]){
         int ch;
         int hourly = 0, now = 1, week= 0;
         char cityName[100];
+	if ( strcmp(apiKey, "") == 0) 
+		errx(1, "No API key");
         if (argc > 4 || argc < 2)
                 errx(1, "%s", helpStr);
         strcpy(cityName, argv[1]);
