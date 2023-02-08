@@ -108,3 +108,19 @@ void displayWeatherToday(cJSON * weatherList, int n){
         printf("\n========================================================\n");
         }
 }
+
+void display5Days(cJSON *weatherList){
+        printf("Time to draw\n");
+        weatherList = cJSON_DetachItemFromObject(weatherList, "DailyForecasts");
+        //go through the array
+        for (int i = 0; i < 5; i++){
+                cJSON *elm = cJSON_DetachItemFromArray(weatherList, i);
+                //get the day of week
+                time_t elmTm = cJSON_GetObjectItem(elm, "EpochDate")->valueint;
+                struct tm *day;                        
+                day = gmtime(&elmTm);
+                cJSON_Delete(elm);
+                printf("%d\n", day->tm_wday);
+        }
+}
+
