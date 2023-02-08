@@ -88,7 +88,6 @@ getCountryCoords(const char *cityName){
         strcat(header,"\n");
         //send http request
         writen(sock, header, strlen(header)); 
-	printf(" ");
         readHttpResponse(sock, response);
         close(sock);
         //weird

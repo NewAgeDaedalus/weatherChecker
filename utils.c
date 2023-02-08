@@ -85,7 +85,7 @@ int readHttpResponse(int sock, char *response){
                 return -1;
         }
         //Lookup content length
-        char *word = (char*) malloc(100);
+        char *word = (char*) malloc(1500);
         int found = 0;
         int contenLen = 0;
         //read body
