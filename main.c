@@ -46,7 +46,7 @@ int getBasic(const char *lat,const char *lon){
         //printf("%s\n", httpRequest);
         writen(sock, httpRequest, strlen(httpRequest)); 
         //wait for resonse
-        char response[4096] = "";
+        char response[4096];
         readHttpResponse(sock, response);
         //printf("%s\n", response);
         cJSON *responseData = cJSON_Parse(response);
@@ -68,14 +68,16 @@ struct coords*
 getCountryCoords(const char *cityName){
         const char *resource = "/geo/1.0/direct";
         int sock = tcpConnect(geocodingAPIhostname);
-        char url[1024];
+	char url[1024] ="";
         strcpy(url, resource);
         strcat(url, "?");
         strcat(url, "q=");
         strcat(url, cityName);
         strcat(url, "&appid=");
         strcat(url, apiKey);
-        char header[2048];
+// 	printf("%s\n", url);
+        char header[2048] = "";
+        char response[4096] = "";
         strcpy(header, "GET ");
         strcat(header, url);
         strcat(header, " HTTP/1.1\n");
@@ -86,12 +88,13 @@ getCountryCoords(const char *cityName){
         strcat(header,"\n");
         //send http request
         writen(sock, header, strlen(header)); 
-        char response[4056];
+	printf(" ");
         readHttpResponse(sock, response);
         close(sock);
         //weird
         if (!strncmp(response, "\n[]", 3))
                 return NULL;
+	//Here it segfaults for some reason
         cJSON *json = cJSON_DetachItemFromArray(cJSON_Parse(response), 0);
         struct coords *kordinate = (struct coords*) malloc(sizeof(struct coords));
         kordinate->lat= cJSON_GetObjectItem(json, "lat")->valuedouble;
@@ -234,6 +237,7 @@ int main(int argc, char *argv[]){
                 }
         }
         struct coords *kordinate;
+// 	printf("Ajde\n");
         kordinate = getCountryCoords(cityName);
         if (kordinate == NULL)
                 errx(1, "Place does not exist\n");

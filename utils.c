@@ -104,8 +104,9 @@ int readHttpResponse(int sock, char *response){
                 word[len] = *c;
                 word[len+1] = '\0';
         }
+	readn(sock, word, 1);
         free(word);
-        readn(sock,response, contenLen+1);
+        readn(sock,response, contenLen);
         return 0;
 }
 
