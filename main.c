@@ -15,8 +15,6 @@
 #include "display.h"
 #include "libs/cJSON/cJSON.h" 
 
-const char *latMy= "45.819601167969466";
-const char *lonMy=  "15.884336035489284";
 const char *apiKey = ""; //Put your apikey from openweathermap.org here
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
@@ -27,7 +25,7 @@ int getBasic(const char *lat,const char *lon){
         const char *resource = "/data/2.5/weather";
         int sock;
         //create a tcp connection
-        tcpConnect(weatherAPIhostname);
+        sock = tcpConnect(weatherAPIhostname);
         //construct url
         char url[200], httpRequest[1024];
         strcpy(url, resource);
@@ -46,7 +44,6 @@ int getBasic(const char *lat,const char *lon){
         strcat(httpRequest,"\n");
         //send http request
         //printf("%s\n", httpRequest);
-        printf("%s\n", httpRequest);
         writen(sock, httpRequest, strlen(httpRequest)); 
         //wait for resonse
         char response[4096] = "";
@@ -161,6 +158,7 @@ char *getLocKey(int sock, struct coords *loc){
         strcat(header, "Accept-Encoding: Identity\n");
         strcat(header,"\n");
         printf("%s\n", header);
+	printf("\n?\n");
         writen(sock,header, strlen(header));
         char response[2000];
         readHttpResponse(sock, response);
