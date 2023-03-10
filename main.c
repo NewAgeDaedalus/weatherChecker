@@ -15,7 +15,7 @@
 #include "display.h"
 #include "libs/cJSON/cJSON.h" 
 
-const char *apiKey = "bef70be6490a5eae7fdd2cacd8679d6c"; //Put your apikey from openweathermap.org here
+const char *apiKey = ""; //Put your apikey from openweathermap.org here
 const char *weatherAPIhostname = "api.openweathermap.org";
 const char *geocodingAPIhostname = "api.openweathermap.org";
 const char *accuWeatherhostname = "dataservice.accuweather.com";
@@ -91,7 +91,7 @@ getCountryCoords(const char *cityName){
         readHttpResponse(sock, response);
         close(sock);
         //weird
-        if (!strncmp(response, "\n[]", 3))
+        if (!strncmp(response, "[]", 2))
                 return NULL;
 	//Here it segfaults for some reason
         cJSON *json = cJSON_DetachItemFromArray(cJSON_Parse(response), 0);
