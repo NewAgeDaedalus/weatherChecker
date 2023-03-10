@@ -23,11 +23,11 @@ make && sudo make install
 To get the current weather of a place use
 
 ```bash
-weather "New York"
+weatherChecker "New York"
 ```
 
 To get the weather report for the next few hours use
 
 ```bash
-weather "Berlin" -h 6
+weatherChecker "Berlin" -h 6
 ```
